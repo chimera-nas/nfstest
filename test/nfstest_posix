@@ -1232,8 +1232,11 @@ class PosixTest(TestUtil):
                         fstat = posix.fstat(fd)
 
                     if ftype in [EXISTENT, SYMLINK]:
-                        if posix.O_EXCL in flags and posix.O_CREAT in flags:
-                            # O_EXCL and O_CREAT are set
+                        if posix.O_EXCL in flags and posix.O_CREAT in flags and posix.O_DIRECTORY not in flags:
+                            # O_EXCL and O_CREAT are set (O_DIRECTORY excluded:
+                            # O_CREAT|O_DIRECTORY is unspecified -- modern Linux
+                            # rejects it with EINVAL before the EEXIST check, so
+                            # let it fall through to the O_DIRECTORY|O_CREAT case)
                             (expr, fmsg) = self._oserror(openerr, errno.EEXIST)
                             msg = "open - opening %s should return an error when O_EXCL|O_CREAT is used" % fmap[ftype]
                             self.test(expr, msg, subtest=flag_str, failmsg=fmsg)
