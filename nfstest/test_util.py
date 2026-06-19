@@ -51,6 +51,19 @@ import fcntl
 import ctypes
 import struct
 import inspect
+import multiprocessing
+
+# Python 3.14 changed the default multiprocessing start method on Linux from
+# "fork" to "forkserver".  forkserver re-execs a helper + resource_tracker
+# process, which dies in the minimal nfstest KVM guest (PID 1 is a bare init),
+# so JoinableQueue/Process break with BrokenPipeError (e.g. nfstest_ssc intra06,
+# file_io with nprocs>1).  This suite was written for the historic "fork"
+# default; every test imports TestUtil before creating any multiprocessing
+# object, so forcing it here restores that behaviour suite-wide.
+try:
+    multiprocessing.set_start_method("fork", force=True)
+except (RuntimeError, ValueError):
+    pass
 import textwrap
 import traceback
 from formatstr import *

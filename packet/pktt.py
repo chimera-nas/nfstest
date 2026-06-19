@@ -207,12 +207,6 @@ def unparse(tree):
         return "[%s]" % ", ".join([unparse(x) for x in tree.elts])
     elif isinstance(tree, ast.Call):
         return "%s(%s)" % (unparse(tree.func), ", ".join([unparse(x) for x in tree.args]))
-    elif isinstance(tree, ast.Num):   # Deprecated
-        return repr(tree.n)
-    elif isinstance(tree, ast.Str):   # Deprecated
-        return repr(tree.s)
-    elif isinstance(tree, ast.Bytes): # Deprecated
-        return repr(tree.s)
     elif isinstance(tree, ast.Expression):
         tree = tree.body
 

@@ -121,12 +121,12 @@ class RemoteServer:
                         self.conn.send((xid, out))
                     elif cmd == "eval":
                         # Evaluate expression
-                        out = eval(fstr)
+                        out = eval(fstr, globals())
                         self.log("RESULT: " + repr(out))
                         self.conn.send((xid, out))
                     elif cmd == "exec":
                         # Execute statement
-                        exec(fstr)
+                        exec(fstr, globals())
                         self.log("EXEC done")
                         self.conn.send((xid, None))
                     else:
