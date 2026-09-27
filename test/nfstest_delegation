@@ -1356,7 +1356,9 @@ class DelegTest(TestUtil):
                 self.test(cbcall, "CB_RECALL should be sent to the client after a conflicting %s is received from a second client" % conflict_str)
             if cbcall is None:
                 return
-            cbrecall_index = self.pktt.get_index()
+            # Recovery can run before the callback reply is sent. Start at
+            # the recall call so an early OPEN or LOCK is not skipped.
+            cbrecall_index = cbcall.record.index
             if deleg2_stid is None:
                 expr = cbcall.NFSop.stateid.other == deleg_stid
             else:
@@ -1368,6 +1370,7 @@ class DelegTest(TestUtil):
                 self.test(cbreply.NFSop.status == NFS4_OK, "CB_RECALL should return NFS4_OK")
 
             # Find OPEN sent from the client right before returning the delegation
+            self.pktt.rewind(cbrecall_index)
             (fh, op_stid2, deleg_stid2) = self.find_open(filename=self.filename, deleg_stateid=deleg_stid, src_ipaddr=self.client_ipaddr, fh=open_fh)
             open_index = self.pktt.get_index()
             if fh is not None or (not wrdexpr and claim_cur in [os.O_RDONLY, os.O_WRONLY]):
